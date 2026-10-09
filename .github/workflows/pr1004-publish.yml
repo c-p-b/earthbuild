@@ -1,0 +1,32 @@
+name: PR1004 test backend
+on:
+  push:
+    branches: [test/pr1004-publish]
+permissions:
+  contents: read
+  packages: write
+jobs:
+  backend:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 07aa5586afce09b7e864c451f5c666f803e47a8f
+          persist-credentials: false
+      - uses: earthbuild/actions-setup@f4d20223e70dbb43b5fc08c4d857ab9cf0dbf3ae # v2.2.0
+        with:
+          github-token: ${{ github.token }}
+      - name: Authenticate package publishing
+        env:
+          PACKAGE_TOKEN: ${{ github.token }}
+          PACKAGE_USER: ${{ github.actor }}
+        run: printf '%s' "$PACKAGE_TOKEN" | docker login ghcr.io -u "$PACKAGE_USER" --password-stdin
+      - name: Build the exact PR backend
+        run: >-
+          earth --push ./buildkitd+buildkitd
+          --TAG=v0.8.18-pr1004-07aa5586
+          --RELEASE_VERSION=v0.8.18-pr1004-07aa5586
+          --CR_ORG=c-p-b --CR_REPO=earthbuild
+      - name: Record published digest
+        run: docker buildx imagetools inspect ghcr.io/c-p-b/earthbuild:buildkitd-v0.8.18-pr1004-07aa5586
