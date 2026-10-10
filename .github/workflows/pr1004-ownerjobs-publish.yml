@@ -1,7 +1,7 @@
-name: PR1004 test backend
+name: PR1004 test backend with merged-edge owner fix
 on:
   push:
-    branches: [test/pr1004-publish]
+    branches: [test/pr1004-ownerjobs-publish]
 permissions:
   contents: read
   packages: write
@@ -25,8 +25,9 @@ jobs:
       - name: Build the exact PR backend
         run: >-
           earth --push ./buildkitd+buildkitd
-          --TAG=v0.8.18-pr1004-07aa5586
+          --BUILDKIT_PROJECT=github.com/c-p-b/buildkit:be246909c268752ceac213fbcf6037435a60eb21
+          --TAG=v0.8.18-pr1004-07aa5586-be246909
           --RELEASE_VERSION=v0.8.18-pr1004-07aa5586
           --CR_ORG=c-p-b --CR_REPO=earthbuild
       - name: Record published digest
-        run: docker buildx imagetools inspect ghcr.io/c-p-b/earthbuild:buildkitd-v0.8.18-pr1004-07aa5586
+        run: docker buildx imagetools inspect ghcr.io/c-p-b/earthbuild:buildkitd-v0.8.18-pr1004-07aa5586-be246909
